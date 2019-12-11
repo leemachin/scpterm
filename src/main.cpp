@@ -1,9 +1,10 @@
 #include <iostream>
 #include "SDL.h"
+#include "timer.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-const int SCREEN_FPS = 30;
+const int SCREEN_FPS = 1;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 void log_sdl_error(std::ostream &os, const std::string &msg) {
@@ -34,23 +35,29 @@ int main() {
 
     SDL_Event evt;
     bool quit = false;
+    Timer fpsTimer;
 
     while (!quit) {
+        fpsTimer.start();
 
-        if (SDL_PollEvent(&evt)) {
+        while (SDL_PollEvent(&evt)) {
             switch(evt.type) {
                 case SDL_QUIT:
                     quit = true;
                     break;
             }
         }
-
         // update state
 
         // render changes ( pass in lag/MS_PER_UPDATE to balance out rendering)
         SDL_SetRenderDrawColor(renderer, rand() % 255, rand() % 255, rand() % 255, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
+
+        int frameTicks = fpsTimer.get_ticks();
+        if (frameTicks < SCREEN_TICKS_PER_FRAME) {
+            SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
+        }
     }
 
     SDL_DestroyRenderer(renderer);
