@@ -4,7 +4,7 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-const int SCREEN_FPS = 1;
+const int SCREEN_FPS = 24;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 void log_sdl_error(std::ostream &os, const std::string &msg) {
@@ -44,6 +44,7 @@ int main() {
             switch(evt.type) {
                 case SDL_QUIT:
                     quit = true;
+                    fpsTimer.stop();
                     break;
             }
         }
