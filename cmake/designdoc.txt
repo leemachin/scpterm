@@ -1,0 +1,51 @@
+* SCP TERM *
+
+A retro imitation of a terminal within an SCP site, used to access and read classified documents.
+
+This game itself should be considered its own SCP, object class Safe, as has become the standard for cataloguing
+SCPs.
+
+* REQUIREMENTS *
+
+SCP TERM boots up with logo and chime on a retro-style CRT-display. Text is coloured Atari-style in a warm orange, with
+a bitmapped font, and distortions and scanlines occasionally rolling down the screen.
+
+User is then prompted with a login prompt. Acceptable logins to be decided, but should ideally adhere to clearance
+levels. O5 sees everything, administrator sees everything, level 1-4 see some things.
+
+After successful login, user is presented with a 'dashboard' with a single input: an SCP number. Additional features
+are out of scope of the MVP, e.g. logging personal draft SCPs (requires account), bookmarking certain SCPs, adding
+ personal notes, etc.
+
+Requiring approvals from multiple superiors is not supported (makes game unusable).
+
+Infohazards, congnitohazards, and other similar threats are presented with a warning screen. These require secondary
+approval to access. Implementation depends on ability to scrape SCP wiki, or if SCPs have to be programmed manually.
+    - Offline only: better to manually script individual SCPs. Requires scripting layer e.g. lisp, lua, mruby.
+    - Online only: scrapes wiki. Requires clever parsing.
+
+Images should be displayed monochrome. Dynamic articles using JS, etc. are not supported unless can be scripted by hand.
+
+Overall UI is a text interface similar to that of an old UNIX or DOS terminal. Mouse input is supported as a matter of
+convenience but most navigation is using the cursor and shortcut [K]eys.
+
+UI consists of an upper status bar displaying the time, with potential additions at later stages (e.g. monitoring CPU
+time, showing logged in account, log out option).
+
+In order to mimic an older terminal, FPS is locked at a low rate (24FPS for now) and designed to act slowly.
+
+* AUDIO *
+
+Minimal, except for system beeps in the case of error or invalid input and hints when interacting with UI, plus
+startup and shutdown chimes.
+
+Warnings like info/cognito-hazards can ring the bell several times.
+
+Non-MVP: CRT hum.
+
+* KEY BINDINGS *
+
+ESC - goes back until reaching dashboard.
+ENTER - goes forward depending on context of keypress
+ARROWS - moves cursor through text and UI
+SHORTCUTS - to be designed
