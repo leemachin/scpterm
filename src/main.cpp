@@ -12,6 +12,12 @@ const int SCREEN_HEIGHT = 480;
 const int SCREEN_FPS = 24;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
+enum Scene {
+    intro = 0,
+    testing,
+    LAST_SCENE
+};
+
 void log_sdl_error(std::ostream &os, const std::string &msg) {
     os << msg << " [ERROR] " << SDL_GetError() << std::endl;
 }
@@ -24,6 +30,9 @@ const char PATH_SEP = '/';
 
 SDL_Window* gWin;
 SDL_Renderer* gRenderer;
+SDL_Texture* gTexture;
+
+int gCurrentScene;
 
 bool init() {
     bool success = true;
@@ -89,6 +98,20 @@ std::string get_resource( const std::string &filename, const std::string &subDir
     return subDir.empty() ? baseRes + filename:  baseRes + subDir + PATH_SEP + filename;
 }
 
+void close() {
+    SDL_DestroyTexture(gTexture);
+    gTexture = nullptr;
+
+    SDL_DestroyRenderer(gRenderer);
+    gRenderer = nullptr;
+
+    SDL_DestroyWindow(gWin);
+    gWin = nullptr;
+
+    IMG_Quit();
+    SDL_Quit();
+}
+
 int main() {
     init();
 
@@ -103,23 +126,45 @@ int main() {
             switch(evt.type) {
                 case SDL_QUIT:
                     quit = true;
-                    fpsTimer.stop();
                     break;
+                case SDL_KEYDOWN: {
+                    switch (evt.key.keysym.sym) {
+                        case SDLK_SPACE:
+                            gCurrentScene = (gCurrentScene + 1) % LAST_SCENE;
+                            break;
+                        case SDLK_ESCAPE:
+                            quit = true;
+                            break;
+                    }
+
+                    break;
+                }
             }
         }
         // update state
 
         // render changes ( pass in lag/MS_PER_UPDATE to balance out rendering)
-        auto* logo = load_texture(get_resource("scplogo.png", "img"));
-        if (logo == nullptr) {
-            log_sdl_error(std::cout, "scpterm::load_surface");
-            quit = true;
-            continue;
+        SDL_RenderClear(gRenderer);
+
+        switch(gCurrentScene) {
+            case intro: {
+                gTexture = load_texture(get_resource("scplogo.png", "img"));
+                if (gTexture == nullptr) {
+                    log_sdl_error(std::cout, "scpterm::load_surface");
+                    quit = true;
+                    break;
+                }
+                SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+                SDL_RenderCopy(gRenderer, gTexture, nullptr, nullptr);
+                break;
+            }
+            case testing: {
+                SDL_SetRenderDrawColor(gRenderer, 50, 100, 200, SDL_ALPHA_OPAQUE);
+                break;
+            }
+
         }
 
-        SDL_RenderClear(gRenderer);
-        SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-        SDL_RenderCopy(gRenderer, logo, NULL, NULL);
         SDL_RenderPresent(gRenderer);
 
         int frameTicks = fpsTimer.get_ticks();
@@ -128,9 +173,7 @@ int main() {
         }
     }
 
-    SDL_DestroyRenderer(gRenderer);
-    SDL_DestroyWindow(gWin);
-    SDL_Quit();
+    close();
 
     return 0;
 }
